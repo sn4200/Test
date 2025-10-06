@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="formbox" style="max-width:600px;">
+        <h1 style="font-size:2em;">{{ title }}</h1>
+        {% if message %}
+            <div style="background:#d4edda;color:#155724;padding:20px;border-radius:8px;font-size:1.3em;margin-bottom:20px;text-align:center;">
+                {{ message }}
+            </div>
+        {% endif %}
+        <form method="post" style="font-size:1.5em;">
+            {% csrf_token %}
+            <div style="margin-bottom:30px;">
+                {{ form.item.label_tag }}<br>
+                {{ form.item }}
+            </div>
+            <div style="margin-bottom:30px;">
+                {{ form.quantity.label_tag }}<br>
+                {{ form.quantity }}
+            </div>
+            <button type="submit" class="btn" style="width:100%;font-size:1.5em;padding:20px 0;">Wareneingang buchen</button>
+        </form>
+    </div>
+{% endblock %}

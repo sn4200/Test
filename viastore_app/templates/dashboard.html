@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="dashboard">
+        <h1>Dashboard</h1>
+        <div class="stat">Lager: {{ warehouse_count }}</div>
+        <div class="stat">Artikel: {{ item_count }}</div>
+        <div class="stat">Bestellungen: {{ order_count }}</div>
+        <canvas id="dashboardChart" width="350" height="250"></canvas>
+        <div class="button-group">
+            <a href="/lager-anlegen/" class="btn">Lager anlegen</a>
+            <a href="/artikel-anlegen/" class="btn">Artikel anlegen</a>
+            <a href="/bestellung-anlegen/" class="btn">Bestellung anlegen</a>
+            <a href="/wareneingang/" class="btn">Wareneingang buchen</a>
+            <a href="/bestandskorrektur/" class="btn">Bestandskorrektur</a>
+            <a href="/bestandsauskunft/" class="btn">Bestandsauskunft</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Lager', 'Artikel', 'Bestellungen'],
+                datasets: [{
+                    label: 'Anzahl',
+                    data: [{{ warehouse_count }}, {{ item_count }}, {{ order_count }}],
+                    backgroundColor: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(231, 76, 60, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

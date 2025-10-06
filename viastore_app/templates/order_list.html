@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="stockbox">
+        <h1>{{ title }}</h1>
+        <table>
+            <tr>
+                <th>Bestellnummer</th>
+                <th>Artikel</th>
+                <th>SKU</th>
+                <th>Menge</th>
+                <th>Datum</th>
+            </tr>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.order_number }}</td>
+                <td>{{ order.item.name }}</td>
+                <td>{{ order.item.sku }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.order_date|date:'d.m.Y H:i' }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">Keine Bestellungen vorhanden.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

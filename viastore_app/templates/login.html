@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="formbox" style="max-width:400px; margin-top:80px;">
+    <h1 style="text-align:center;">Login</h1>
+    {% if form.errors %}
+        <div style="background:#f8d7da;color:#721c24;padding:15px;border-radius:8px;font-size:1.1em;margin-bottom:20px;text-align:center;">
+            Benutzername oder Passwort falsch!
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom:25px;">
+            {{ form.username.label_tag }}<br>
+            {{ form.username }}
+        </div>
+        <div style="margin-bottom:25px;">
+            {{ form.password.label_tag }}<br>
+            {{ form.password }}
+        </div>
+        <button type="submit" class="btn" style="width:100%;font-size:1.2em;padding:12px 0;">Login</button>
+    </form>
+</div>
+{% endblock %}
