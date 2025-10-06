@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p>Möchten Sie den Artikel <b>{{ item.name }}</b> wirklich löschen?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Löschen</button>
+    <a href="{% url 'item_list' %}" class="btn btn-secondary">Abbrechen</a>
+</form>
+{% endblock %}

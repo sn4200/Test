@@ -1,3 +1,5 @@
+# Weiterleitung zur eigenen Login-Seite
+LOGIN_URL = "/login/"
 """
 Django settings for viastore_project project.
 

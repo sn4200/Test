@@ -1,34 +1,50 @@
 {% extends "base.html" %}
+{% if ajax %}
+    {% block sidebar %}{% endblock %}
+{% endif %}
 {% block content %}
-    <div class="formbox">
-        <h1>{{ title }}</h1>
-        <form method="post" id="stock-correction-form">
+    <div class="formbox" style="max-width:600px;">
+        <h1 style="font-size:2em;">{{ title }}</h1>
+        {% if message %}
+            <div style="background:#d4edda;color:#155724;padding:20px;border-radius:8px;font-size:1.3em;margin-bottom:20px;text-align:center;">
+                {{ message }}
+            </div>
+        {% endif %}
+        <form method="post" id="ajaxForm" style="font-size:1.5em;">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn">Speichern</button>
+            {% if form.item %}
+                <div style="margin-bottom:30px;">
+                    <span style="color:#111;font-weight:bold;">{{ form.item.label_tag }}</span><br>
+                    {{ form.item }}
+                </div>
+            {% endif %}
+            {% if form.quantity %}
+                <div style="margin-bottom:30px;">
+                    <span style="color:#111;font-weight:bold;">{{ form.quantity.label_tag }}</span><br>
+                    {{ form.quantity }}
+                </div>
+            {% endif %}
+            {% if form.new_quantity %}
+                <div style="margin-bottom:30px;">
+                    <span style="color:#111;font-weight:bold;">{{ form.new_quantity.label_tag }}</span><br>
+                    {{ form.new_quantity }}
+                </div>
+            {% endif %}
+            {% if form.file %}
+                <div style="margin-bottom:30px;">
+                    <span style="color:#111;font-weight:bold;">{{ form.file.label_tag }}</span><br>
+                    {{ form.file }}
+                </div>
+            {% endif %}
+            {% for field in form %}
+                {% if field.name != 'item' and field.name != 'quantity' and field.name != 'new_quantity' and field.name != 'file' %}
+                    <div style="margin-bottom:30px;">
+                        <span style="color:#111;font-weight:bold;">{{ field.label_tag }}</span><br>
+                        {{ field }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button type="submit" class="btn" style="width:100%;font-size:1.5em;padding:20px 0;">Speichern</button>
         </form>
     </div>
-    <div id="bestand-popup" style="display:none;position:fixed;top:30%;left:50%;transform:translate(-50%, -50%);background:#fff;border:2px solid #2980b9;padding:20px;border-radius:8px;z-index:1000;box-shadow:0 2px 8px #ccc;min-width:250px;text-align:center;">
-        <span id="popup-text"></span>
-        <br><br>
-        <button onclick="document.getElementById('bestand-popup').style.display='none'" class="btn">Schließen</button>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var itemSelect = document.getElementById('id_item');
-            if(itemSelect) {
-                itemSelect.addEventListener('change', function() {
-                    var itemId = this.value;
-                    if(itemId) {
-                        fetch('/api/item-bestand/' + itemId + '/')
-                            .then(response => response.json())
-                            .then(data => {
-                                document.getElementById('popup-text').innerText = 'Aktueller Bestand: ' + data.quantity + ' für ' + data.name + ' (' + data.sku + ')';
-                                document.getElementById('bestand-popup').style.display = 'block';
-                            });
-                    }
-                });
-            }
-        });
-    </script>
 {% endblock %}

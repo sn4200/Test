@@ -1,23 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="formbox" style="max-width:400px; margin-top:80px;">
-    <h1 style="text-align:center;">Login</h1>
+<div class="formbox" style="max-width:500px; margin:60px auto; background:#fff; border-radius:12px; box-shadow:0 2px 12px #ccc; padding:32px 32px 24px 32px;">
+    <div style="text-align:center; margin-bottom:30px;">
+        <img src="https://www.atp-autoteile.de/media/wysiwyg/atp_logo.png" alt="ATP Logo" style="max-width:340px; margin-bottom:18px;">
+    </div>
     {% if form.errors %}
         <div style="background:#f8d7da;color:#721c24;padding:15px;border-radius:8px;font-size:1.1em;margin-bottom:20px;text-align:center;">
             Benutzername oder Passwort falsch!
         </div>
     {% endif %}
-    <form method="post">
+    <form method="post" style="display:flex; flex-direction:column; align-items:center; gap:18px;">
         {% csrf_token %}
-        <div style="margin-bottom:25px;">
-            {{ form.username.label_tag }}<br>
-            {{ form.username }}
+        <div style="display:flex; align-items:center; gap:12px;">
+            <label for="id_username" style="font-weight:bold;">Benutzer</label>
+            <input type="text" name="username" id="id_username" style="padding:6px 12px; min-width:180px; border-radius:4px; border:1px solid #ccc;">
         </div>
-        <div style="margin-bottom:25px;">
-            {{ form.password.label_tag }}<br>
-            {{ form.password }}
+        <div style="display:flex; align-items:center; gap:12px;">
+            <label for="id_password" style="font-weight:bold;">Passwort</label>
+            <input type="password" name="password" id="id_password" style="padding:6px 12px; min-width:180px; border-radius:4px; border:1px solid #ccc;">
         </div>
-        <button type="submit" class="btn" style="width:100%;font-size:1.2em;padding:12px 0;">Login</button>
+        <div style="display:flex; justify-content:center; gap:30px; margin-top:18px;">
+            <button type="submit" class="btn" style="background:#d32f2f; color:#fff; font-weight:bold; font-size:1.2em; padding:10px 32px; border-radius:6px;">ANMELDEN</button>
+            <button type="button" class="btn" style="background:#d32f2f; color:#fff; font-weight:bold; font-size:1.2em; padding:10px 32px; border-radius:6px;" onclick="window.close()">BEENDEN</button>
+        </div>
     </form>
 </div>
 {% endblock %}
+{% block sidebar %}{% endblock %}

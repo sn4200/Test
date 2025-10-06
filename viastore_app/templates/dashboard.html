@@ -6,14 +6,43 @@
         <div class="stat">Artikel: {{ item_count }}</div>
         <div class="stat">Bestellungen: {{ order_count }}</div>
         <canvas id="dashboardChart" width="350" height="250"></canvas>
-        <div class="button-group">
-            <a href="/lager-anlegen/" class="btn">Lager anlegen</a>
-            <a href="/artikel-anlegen/" class="btn">Artikel anlegen</a>
-            <a href="/bestellung-anlegen/" class="btn">Bestellung anlegen</a>
-            <a href="/wareneingang/" class="btn">Wareneingang buchen</a>
-            <a href="/bestandskorrektur/" class="btn">Bestandskorrektur</a>
-            <a href="/bestandsauskunft/" class="btn">Bestandsauskunft</a>
-        </div>
+                <div class="button-group">
+                        <a href="/lager-anlegen/" class="btn">Lager anlegen</a>
+                        <a href="/artikel-anlegen/" class="btn">Artikel anlegen</a>
+                        <a href="/bestellung-anlegen/" class="btn">Bestellung anlegen</a>
+                        <a href="/wareneingang/" class="btn">Wareneingang buchen</a>
+                        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#touchModal">Wareneingang Touch</button>
+                        <a href="/bestandskorrektur/" class="btn">Bestandskorrektur</a>
+                        <a href="/bestandsauskunft/" class="btn">Bestandsauskunft</a>
+                </div>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                        var touchModal = document.getElementById('touchModal');
+                        touchModal.addEventListener('show.bs.modal', function (event) {
+                                fetch('/wareneingang-touch/?ajax=1')
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        document.getElementById('touchModalBody').innerHTML = html;
+                                        // Formular-Submit abfangen
+                                        var form = document.getElementById('touchForm');
+                                        if(form) {
+                                            form.onsubmit = function(e) {
+                                                e.preventDefault();
+                                                var formData = new FormData(form);
+                                                fetch('/wareneingang-touch/?ajax=1', {
+                                                    method: 'POST',
+                                                    body: formData
+                                                })
+                                                .then(response => response.text())
+                                                .then(html => {
+                                                    document.getElementById('touchModalBody').innerHTML = html;
+                                                });
+                                            };
+                                        }
+                                    });
+                        });
+                });
+                </script>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -24,7 +53,7 @@
                 labels: ['Lager', 'Artikel', 'Bestellungen'],
                 datasets: [{
                     label: 'Anzahl',
-                    data: [{{ warehouse_count }}, {{ item_count }}, {{ order_count }}],
+                    data: JSON.parse('[{{ warehouse_count }}, {{ item_count }}, {{ order_count }}]'),
                     backgroundColor: [
                         'rgba(52, 152, 219, 0.7)',
                         'rgba(46, 204, 113, 0.7)',

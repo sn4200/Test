@@ -1,23 +1,106 @@
 {% extends "base.html" %}
+{% if standalone %}
+    {% block sidebar %}{% endblock %}
+{% endif %}
 {% block content %}
-    <div class="formbox" style="max-width:600px;">
-        <h1 style="font-size:2em;">{{ title }}</h1>
-        {% if message %}
-            <div style="background:#d4edda;color:#155724;padding:20px;border-radius:8px;font-size:1.3em;margin-bottom:20px;text-align:center;">
-                {{ message }}
+    <script>
+    // Fullscreen erzwingen
+    function requestFullscreen() {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        requestFullscreen();
+    });
+    // Zoom blockieren
+    document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+    document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+    document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+    document.addEventListener('wheel', function(e) {
+        if (e.ctrlKey) e.preventDefault();
+    }, { passive: false });
+    </script>
+    <form id="touchForm" method="post" class="container" style="width:90vw;height:90vh;max-width:none;margin:auto;padding:2vw;font-size:clamp(1em,2vw,1.5em);display:flex;flex-direction:column;justify-content:center;align-items:center;">
+        {% csrf_token %}
+        {% if form.item_name %}
+            <div style="margin-bottom:20px;">
+                <span style="color:#111;font-weight:bold;">{{ form.item_name.label_tag }}</span><br>
+                {{ form.item_name }}
+                <button type="button" class="btn btn-secondary" style="margin-top:10px;" onclick="document.getElementById('scannerModal').style.display='block'; startScanner();">Scannen</button>
             </div>
+            <div id="itemInfoBox" style="margin-bottom:20px;"></div>
+            <script>
+            function showItemInfo(data) {
+                const box = document.getElementById('itemInfoBox');
+                if(data.error) {
+                    box.innerHTML = '<span style="color:red;">' + data.error + '</span>';
+                } else {
+                    box.innerHTML = '<b>Bezeichnung:</b> ' + data.name;
+                }
+            }
+            function fetchItemInfo(sku) {
+                if(!sku) return;
+                fetch('/api/google-item-info/' + sku + '/')
+                    .then(r => r.json())
+                    .then(showItemInfo);
+            }
+            document.getElementById('id_item_name').addEventListener('change', function() {
+                fetchItemInfo(this.value);
+            });
+            // Nach Scan auch Info laden
+            function onScanSuccess(decodedText, decodedResult) {
+                document.getElementById('id_item_name').value = decodedText;
+                document.getElementById('scannerModal').style.display = 'none';
+                window.qrScanner.clear();
+                fetchItemInfo(decodedText);
+            }
+            </script>
+            <!-- Scanner Modal -->
+            <div id="scannerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;">
+                <div style="background:#fff;padding:20px;border-radius:10px;max-width:400px;margin:40px auto;position:relative;">
+                    <div id="qr-reader" style="width:320px;"></div>
+                    <button type="button" class="btn btn-danger" style="margin-top:10px;" onclick="document.getElementById('scannerModal').style.display='none';window.qrScanner && window.qrScanner.clear();">Schließen</button>
+                </div>
+            </div>
+            <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+            <script>
+            function onScanSuccess(decodedText, decodedResult) {
+                document.getElementById('id_item_name').value = decodedText;
+                document.getElementById('scannerModal').style.display = 'none';
+                window.qrScanner.clear();
+            }
+            function startScanner() {
+                if(window.qrScanner) window.qrScanner.clear();
+                window.qrScanner = new Html5Qrcode("qr-reader");
+                window.qrScanner.start({ facingMode: "environment" }, {
+                    fps: 10,
+                    qrbox: 250
+                }, onScanSuccess);
+            }
+            // Event-Bindung entfernt, Scanner wird direkt beim Öffnen des Modals gestartet
+            </script>
         {% endif %}
-        <form method="post" style="font-size:1.5em;">
-            {% csrf_token %}
-            <div style="margin-bottom:30px;">
-                {{ form.item.label_tag }}<br>
-                {{ form.item }}
-            </div>
-            <div style="margin-bottom:30px;">
-                {{ form.quantity.label_tag }}<br>
+        {% if form.quantity %}
+            <div style="margin-bottom:20px;">
+                <span style="color:#111;font-weight:bold;">{{ form.quantity.label_tag }}</span><br>
                 {{ form.quantity }}
             </div>
-            <button type="submit" class="btn" style="width:100%;font-size:1.5em;padding:20px 0;">Wareneingang buchen</button>
-        </form>
-    </div>
+        {% endif %}
+        {% for field in form %}
+            {% if field.name != 'item_name' and field.name != 'quantity' %}
+                <div style="margin-bottom:20px;">
+                    <span style="color:#111;font-weight:bold;">{{ field.label_tag }}</span><br>
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <button type="submit" class="btn" style="width:100%;font-size:1.2em;padding:12px 0;">Wareneingang buchen</button>
+    </form>
+    {% if message %}
+        <div style="background:#d4edda;color:#155724;padding:15px;border-radius:8px;font-size:1.1em;margin-top:20px;text-align:center;">
+            {{ message }}
+        </div>
+    {% endif %}
 {% endblock %}
