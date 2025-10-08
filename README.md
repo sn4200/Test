@@ -1,16 +1,16 @@
 # Viastore Demo – Dokumentation
 
 ## Übersicht
-Dieses Projekt ist eine Demo-Anwendung für Lagerverwaltung, Artikelverwaltung und Bestellmanagement mit Touch-optimierter Wareneingangsbuchung. Es basiert auf Django und Bootstrap.
+Dieses Projekt ist eine Demo-Anwendung für Lagerverwaltung, Artikelverwaltung und Bestellmanagement mit JWT-basierter Token-Authentifizierung. Es basiert auf Django und Django REST Framework.
 
 ## Features
-- Dashboard mit Statistiken und Diagramm
-- Lager, Artikel und Bestellungen anlegen und verwalten
-- Bestandskorrektur und Bestandsauskunft
-- Wareneingang (Standard und Touch-Version)
-- Sidebar-Navigation mit Icons
-- Benutzer-Login und Logout, Zugriffsschutz für alle Seiten
-- Touch-Anwendung unter /touch/ (ohne Sidebar)
+- JWT-basierte Token-Authentifizierung (kein Cookie-Login)
+- RESTful API-Endpunkte für alle Funktionen
+- Dashboard mit Statistiken
+- Lager, Artikel und Bestellungen über API verwalten
+- Bestandskorrektur und Bestandsauskunft über API
+- Wareneingang (Standard und Touch-Version) über API
+- Excel-Import über API
 - Admin-Bereich für Superuser
 
 ## Installation
@@ -38,12 +38,14 @@ Dieses Projekt ist eine Demo-Anwendung für Lagerverwaltung, Artikelverwaltung u
 	python manage.py runserver
 	```
 
-## Nutzung
-- **Dashboard:** Übersicht, Buttons für alle Funktionen
-- **Sidebar:** Navigation zu Lager, Artikel, Bestellungen, Wareneingang, Bestandskorrektur, Bestandsauskunft
-- **Touch-Version:** `/touch/` – optimiert für Tablets, nur Wareneingang
-- **Login:** `/login/` – alle Seiten sind geschützt
-- **Admin:** `/admin/` – Django Admin für alle Modelle
+## Verwendung der API
+- **Authentifizierung:** JWT-Token über `/api/token-login/` abrufen
+- **Dashboard:** Statistiken über `/api/dashboard/` abrufen
+- **Lager:** Über `/api/lager/` verwalten
+- **Artikel:** Über `/api/artikel/` verwalten
+- **Bestellungen:** Über `/api/bestellungen/` verwalten
+- **Wareneingang:** Über `/api/wareneingang/` buchen
+- **Admin:** `/admin/` – Django Admin für Superuser
 
 ## Datenmodelle
 ### Warehouse
@@ -62,25 +64,67 @@ Dieses Projekt ist eine Demo-Anwendung für Lagerverwaltung, Artikelverwaltung u
 - quantity: Menge
 - order_date: Datum
 
-## Wichtige Views & URLs
-- `/` – Dashboard
-- `/lager-anlegen/` – Lager anlegen
-- `/artikel-anlegen/` – Artikel anlegen
-- `/bestellung-anlegen/` – Bestellung anlegen
-- `/wareneingang/` – Wareneingang buchen
-- `/wareneingang-touch/` – Wareneingang Touch (als Modal)
-- `/touch/` – Separate Touch-Anwendung
-- `/bestandskorrektur/` – Bestandskorrektur
-- `/bestandsauskunft/` – Bestandsauskunft
-- `/bestellungen/` – Bestellungen anzeigen
-- `/login/` – Login
-- `/logout/` – Logout
-- `/admin/` – Django Admin
+## API-Endpunkte
+
+### Authentifizierung
+- `POST /api/token-login/` – JWT Token Login
+  - Body: `{"username": "...", "password": "..."}`
+  - Response: `{"access": "...", "refresh": "..."}`
+
+### Dashboard
+- `GET /api/dashboard/` – Dashboard-Statistiken
+
+### Lager (Warehouse)
+- `GET /api/lager/` – Alle Lager auflisten
+- `POST /api/lager/` – Neues Lager anlegen
+
+### Artikel (Items)
+- `GET /api/artikel/` – Alle Artikel auflisten
+- `POST /api/artikel/` – Neuen Artikel anlegen
+- `GET /api/artikel/<id>/` – Artikel-Details abrufen
+- `PUT /api/artikel/<id>/` – Artikel aktualisieren
+- `PATCH /api/artikel/<id>/` – Artikel teilweise aktualisieren
+- `DELETE /api/artikel/<id>/` – Artikel löschen
+- `GET /api/item-bestand/<id>/` – Artikelbestand abrufen
+- `GET /api/item-info/<sku>/` – Artikel-Info nach SKU
+
+### Bestellungen (Orders)
+- `GET /api/bestellungen/` – Alle Bestellungen auflisten
+- `POST /api/bestellungen/` – Neue Bestellung anlegen
+
+### Wareneingang (Goods Receipt)
+- `POST /api/wareneingang/` – Wareneingang buchen
+- `POST /api/wareneingang-touch/` – Touch-Wareneingang
+
+### Bestandsverwaltung (Stock Management)
+- `GET /api/bestandsauskunft/` – Bestandsauskunft für alle Artikel
+- `POST /api/bestandskorrektur/` – Bestandskorrektur durchführen
+
+### Import
+- `POST /api/import-excel/` – Excel-Import
+
+### Externe Daten
+- `GET /api/google-item-info/<sku>/` – Artikel-Info von Google
 
 ## Sicherheit
-- Alle Seiten sind nur nach Login erreichbar
-- Login/Logout über eigene Views
-- Superuser kann im Admin alles verwalten
+- Alle API-Endpunkte sind JWT-geschützt (außer `/api/token-login/` und `/api/google-item-info/`)
+- Jede Anfrage muss den Header `Authorization: Bearer <access_token>` enthalten
+- Tokens sind 1 Stunde gültig (Access Token), Refresh Tokens 1 Tag
+
+## Verwendung
+
+### 1. Token abrufen
+```bash
+curl -X POST http://localhost:8000/api/token-login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'
+```
+
+### 2. API-Anfrage mit Token
+```bash
+curl -X GET http://localhost:8000/api/artikel/ \
+  -H "Authorization: Bearer <your_access_token>"
+```
 
 ## Erweiterung
 Das Projekt kann beliebig erweitert werden, z.B. um weitere Funktionen, API-Endpunkte oder ein responsives Design.
