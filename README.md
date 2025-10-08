@@ -15,18 +15,26 @@ Dieses Projekt ist eine Demo-Anwendung für Lagerverwaltung, Artikelverwaltung u
 
 ## Installation
 1. **Voraussetzungen:** Python 3.12, Django 5.x
-2. **Projekt entpacken:**
-	```
-	unzip viastore_download.zip
+2. **Repository klonen:**
+	```bash
+	git clone https://github.com/sn4200/Test.git
 	cd Test
 	```
 3. **Abhängigkeiten installieren:**
-	```
-	pip install django
+	```bash
+	pip install -r requirements.txt
 	```
 4. **Migrationen ausführen:**
-	```
+	```bash
 	python manage.py migrate
+	```
+5. **Superuser erstellen:**
+	```bash
+	python manage.py createsuperuser
+	```
+6. **Server starten:**
+	```bash
+	python manage.py runserver
 	```
 5. **Superuser anlegen:**
 	```
@@ -126,8 +134,81 @@ curl -X GET http://localhost:8000/api/artikel/ \
   -H "Authorization: Bearer <your_access_token>"
 ```
 
+## Beispiele
+
+### Vollständiger Workflow
+
+#### 1. Login und Token erhalten
+```bash
+curl -X POST http://localhost:8000/api/token-login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'
+```
+
+Response:
+```json
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### 2. Lager erstellen
+```bash
+curl -X POST http://localhost:8000/api/lager/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Hauptlager", "location": "Berlin"}'
+```
+
+#### 3. Artikel erstellen
+```bash
+curl -X POST http://localhost:8000/api/artikel/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Schrauben M8", "sku": "SCR-M8-001", "quantity": 100, "warehouse": 1}'
+```
+
+#### 4. Wareneingang buchen
+```bash
+curl -X POST http://localhost:8000/api/wareneingang/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"item": 1, "quantity": 50}'
+```
+
+#### 5. Artikel aktualisieren
+```bash
+curl -X PATCH http://localhost:8000/api/artikel/1/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Schrauben M8 verzinkt"}'
+```
+
+#### 6. Bestandskorrektur durchführen
+```bash
+curl -X POST http://localhost:8000/api/bestandskorrektur/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"item": 1, "new_quantity": 200}'
+```
+
+#### 7. Alle Artikel abrufen
+```bash
+curl -X GET http://localhost:8000/api/artikel/ \
+  -H "Authorization: Bearer <access_token>"
+```
+
+#### 8. Bestellung erstellen
+```bash
+curl -X POST http://localhost:8000/api/bestellungen/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"order_number": "ORD-001", "item": 1, "quantity": 25}'
+```
+
 ## Erweiterung
-Das Projekt kann beliebig erweitert werden, z.B. um weitere Funktionen, API-Endpunkte oder ein responsives Design.
+Das Projekt kann beliebig erweitert werden, z.B. um weitere Funktionen oder API-Endpunkte.
 
 ## Kontakt
 Fragen und Support: [Dein Name/Team]
