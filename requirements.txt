@@ -1,0 +1,7 @@
+Django>=5.2
+mysqlclient
+gunicorn
+openpyxl
+selenium
+beautifulsoup4
+requests

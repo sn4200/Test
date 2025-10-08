@@ -1,29 +1,35 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Item
 from .forms import ItemForm
+from django.shortcuts import get_object_or_404
 
-@login_required
-def item_list(request):
-    items = Item.objects.all().order_by('name')
-    return render(request, "item_list.html", {"items": items, "title": "Artikelübersicht"})
+class ItemListAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        items = Item.objects.all().order_by('name')
+        data = [{
+            "id": i.id,
+            "name": i.name,
+            "sku": i.sku,
+            "quantity": i.quantity
+        } for i in items]
+        return Response({"items": data})
 
-@login_required
-def item_edit(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    if request.method == "POST":
-        form = ItemForm(request.POST, instance=item)
+class ItemEditAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request, pk):
+        item = get_object_or_404(Item, pk=pk)
+        form = ItemForm(request.data, instance=item)
         if form.is_valid():
             form.save()
-            return redirect("item_list")
-    else:
-        form = ItemForm(instance=item)
-    return render(request, "form.html", {"form": form, "title": f"Artikel bearbeiten: {item.name}"})
+            return Response({"message": "Artikel erfolgreich bearbeitet!"})
+        return Response({"error": "Ungültige Daten"}, status=400)
 
-@login_required
-def item_delete(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    if request.method == "POST":
+class ItemDeleteAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def delete(self, request, pk):
+        item = get_object_or_404(Item, pk=pk)
         item.delete()
-        return redirect("item_list")
-    return render(request, "item_confirm_delete.html", {"item": item, "title": f"Artikel löschen: {item.name}"})
+        return Response({"message": "Artikel gelöscht!"})
