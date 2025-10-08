@@ -18,31 +18,47 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from viastore_app.views import dashboard, add_warehouse, add_item, add_order, goods_receipt, stock_correction, stock_info, item_bestand_api, order_list, goods_receipt_touch, login_view, logout_view, import_excel
-from viastore_app.views_touch import touch_main, item_info_api
-from viastore_app.views_touch import touch_main, item_info_api, google_item_info_api
-from viastore_app.views_item import item_list, item_edit, item_delete
+from viastore_app.api_views import (
+    TokenLoginView, DashboardAPIView, WarehouseListCreateAPIView,
+    ItemListCreateAPIView, ItemDetailAPIView, ItemBestandAPIView,
+    OrderListCreateAPIView, GoodsReceiptAPIView, StockCorrectionAPIView,
+    StockInfoAPIView, ExcelImportAPIView, ItemInfoAPIView,
+    GoogleItemInfoAPIView, TouchGoodsReceiptAPIView
+)
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", dashboard, name="dashboard"),
-    path("artikel/", item_list, name="item_list"),
-    path("artikel/<int:pk>/bearbeiten/", item_edit, name="item_edit"),
-    path("artikel/<int:pk>/loeschen/", item_delete, name="item_delete"),
-    path("lager-anlegen/", add_warehouse, name="add_warehouse"),
-    path("artikel-anlegen/", add_item, name="add_item"),
-    path("bestellung-anlegen/", add_order, name="add_order"),
-    path("wareneingang/", goods_receipt, name="goods_receipt"),
-    path("bestandskorrektur/", stock_correction, name="stock_correction"),
-    path("bestandsauskunft/", stock_info, name="stock_info"),
-    path("api/item-bestand/<int:item_id>/", item_bestand_api, name="item_bestand_api"),
-    path("api/item-info/<str:sku>/", item_info_api, name="item_info_api"),
-        path("api/google-item-info/<str:sku>/", google_item_info_api, name="google_item_info_api"),
-    path("bestellungen/", order_list, name="order_list"),
-    path("wareneingang-touch/", touch_main, name="goods_receipt_touch"),
-    path("login/", login_view, name="login"),
-    path("logout/", logout_view, name="logout"),
-    path("touch/", touch_main, name="touch_main"),
-    path("import-excel/", import_excel, name="import_excel"),
+    
+    # Authentication
+    path("api/token-login/", TokenLoginView.as_view(), name="token_login"),
+    
+    # Dashboard
+    path("api/dashboard/", DashboardAPIView.as_view(), name="dashboard"),
+    
+    # Warehouses
+    path("api/lager/", WarehouseListCreateAPIView.as_view(), name="warehouse_list_create"),
+    
+    # Items
+    path("api/artikel/", ItemListCreateAPIView.as_view(), name="item_list_create"),
+    path("api/artikel/<int:pk>/", ItemDetailAPIView.as_view(), name="item_detail"),
+    path("api/item-bestand/<int:item_id>/", ItemBestandAPIView.as_view(), name="item_bestand_api"),
+    path("api/item-info/<str:sku>/", ItemInfoAPIView.as_view(), name="item_info_api"),
+    
+    # Orders
+    path("api/bestellungen/", OrderListCreateAPIView.as_view(), name="order_list_create"),
+    
+    # Goods Receipt
+    path("api/wareneingang/", GoodsReceiptAPIView.as_view(), name="goods_receipt"),
+    path("api/wareneingang-touch/", TouchGoodsReceiptAPIView.as_view(), name="goods_receipt_touch"),
+    
+    # Stock Management
+    path("api/bestandskorrektur/", StockCorrectionAPIView.as_view(), name="stock_correction"),
+    path("api/bestandsauskunft/", StockInfoAPIView.as_view(), name="stock_info"),
+    
+    # Import
+    path("api/import-excel/", ExcelImportAPIView.as_view(), name="import_excel"),
+    
+    # External data
+    path("api/google-item-info/<str:sku>/", GoogleItemInfoAPIView.as_view(), name="google_item_info_api"),
 ]
